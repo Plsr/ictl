@@ -16,8 +16,9 @@ export interface Database {
           id: number
           link: string
           notes: string | null
+          title: string
           type: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           consume_time_seconds?: number | null
@@ -25,8 +26,9 @@ export interface Database {
           id?: number
           link: string
           notes?: string | null
+          title?: string
           type: string
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
           consume_time_seconds?: number | null
@@ -34,8 +36,9 @@ export interface Database {
           id?: number
           link?: string
           notes?: string | null
+          title?: string
           type?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

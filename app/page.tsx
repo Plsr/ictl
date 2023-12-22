@@ -5,16 +5,7 @@ import { cookies } from "next/headers";
 import { CreateResourceForm } from "@/components/CreateResourceForm";
 import { Database } from "@/types/supabase";
 import { format } from "date-fns";
-import urlMetadata from "url-metadata";
 
-const getTitle = async (link: string) => {
-  const parsedResponse = await urlMetadata(link);
-  console.log(parsedResponse);
-  return parsedResponse["title"];
-};
-
-// TODO: Do this before saving and store to database instead
-// for better performance.
 const getData = async () => {
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({
@@ -23,15 +14,7 @@ const getData = async () => {
 
   const { data } = await supabase.from("resource").select("*");
 
-  if (!data) {
-    return [];
-  }
-
-  const processedData = data.map(async (d) => {
-    return { ...d, title: (await getTitle(d.link)).toString() };
-  });
-
-  return await Promise.all(processedData);
+  return data;
 };
 
 export default async function Index() {
@@ -65,7 +48,7 @@ export default async function Index() {
             <p>{resource.type}</p>
             <p>
               <a target="_blank" href={resource.link}>
-                {resource.title || resource.link}
+                {resource.title}
               </a>
             </p>
             <p>

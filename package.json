@@ -12,6 +12,7 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "autoprefixer": "10.4.15",
+    "clsx": "^2.0.0",
     "date-fns": "^3.0.6",
     "geist": "^1.0.0",
     "next": "latest",
