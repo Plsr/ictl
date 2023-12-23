@@ -12,6 +12,7 @@ export interface Database {
       resource: {
         Row: {
           consume_time_seconds: number | null
+          consumed: boolean | null
           created_at: string
           id: number
           link: string
@@ -22,6 +23,7 @@ export interface Database {
         }
         Insert: {
           consume_time_seconds?: number | null
+          consumed?: boolean | null
           created_at?: string
           id?: number
           link: string
@@ -32,6 +34,7 @@ export interface Database {
         }
         Update: {
           consume_time_seconds?: number | null
+          consumed?: boolean | null
           created_at?: string
           id?: number
           link?: string

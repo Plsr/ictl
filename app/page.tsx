@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { CreateResourceForm } from "@/components/CreateResourceForm";
 import { Database } from "@/types/supabase";
 import { format } from "date-fns";
+import { ResourceConsumedButton } from "@/components/ResourceConsumedButton";
 
 const getData = async () => {
   const cookieStore = cookies();
@@ -12,7 +13,10 @@ const getData = async () => {
     cookies: () => cookieStore,
   });
 
-  const { data } = await supabase.from("resource").select("*");
+  const { data } = await supabase
+    .from("resource")
+    .select("*")
+    .eq("consumed", false);
 
   return data;
 };
@@ -59,6 +63,7 @@ export default async function Index() {
               min
             </p>
             <p>{resource.notes}</p>
+            <ResourceConsumedButton resourceId={resource.id} />
           </div>
         ))}
       </div>

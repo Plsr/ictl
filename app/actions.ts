@@ -20,3 +20,20 @@ export const createResource = async (payload: any) => {
 
   return data;
 };
+
+export const markResourceConsumed = async (resourceId: string) => {
+  const supabase = createServerActionClient<Database>({ cookies });
+
+  const { data, error } = await supabase
+    .from("resource")
+    .update({ consumed: true })
+    .eq("id", resourceId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
