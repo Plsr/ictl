@@ -4,8 +4,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { CreateResourceForm } from "@/components/CreateResourceForm";
 import { Database } from "@/types/supabase";
-import { format } from "date-fns";
-import { ResourceConsumedButton } from "@/components/ResourceConsumedButton";
+import { ResourceListItem } from "@/components/ResourceListItem";
 
 const getData = async () => {
   const cookieStore = cookies();
@@ -48,23 +47,7 @@ export default async function Index() {
       <CreateResourceForm />
       <div className="flex flex-col gap-y-8 justify-start">
         {data?.map((resource) => (
-          <div key={resource.id}>
-            <p>{resource.type}</p>
-            <p>
-              <a target="_blank" href={resource.link}>
-                {resource.title}
-              </a>
-            </p>
-            <p>
-              {format(resource.created_at, "do MMM, yyyy")} -{" "}
-              {resource.consume_time_seconds
-                ? resource.consume_time_seconds / 60.0
-                : ""}
-              min
-            </p>
-            <p>{resource.notes}</p>
-            <ResourceConsumedButton resourceId={resource.id} />
-          </div>
+          <ResourceListItem key={resource.id} resource={resource} />
         ))}
       </div>
     </div>
