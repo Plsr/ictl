@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { CreateResourceForm } from "@/components/CreateResourceForm";
 import { Database } from "@/types/supabase";
 import { ResourceListItem } from "@/components/ResourceListItem";
+import React from "react";
 
 const getData = async () => {
   const cookieStore = cookies();
@@ -47,7 +48,10 @@ export default async function Index() {
       <CreateResourceForm />
       <div className="flex flex-col gap-y-8 justify-start">
         {data?.map((resource) => (
-          <ResourceListItem key={resource.id} resource={resource} />
+          <React.Fragment key={resource.id}>
+            <ResourceListItem resource={resource} />
+            <hr />
+          </React.Fragment>
         ))}
       </div>
     </div>
