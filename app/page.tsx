@@ -6,6 +6,7 @@ import { CreateResourceForm } from "@/components/CreateResourceForm";
 import { Database } from "@/types/supabase";
 import { ResourceListItem } from "@/components/ResourceListItem";
 import React from "react";
+import { AddNewResourceButton } from "@/components/AddNewResourceButton";
 
 const getData = async () => {
   const cookieStore = cookies();
@@ -21,7 +22,12 @@ const getData = async () => {
   return data;
 };
 
-export default async function Index() {
+export default async function Index({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const showModal = Object.hasOwn(searchParams, "showAddModal");
   const cookieStore = cookies();
 
   const canInitSupabaseClient = () => {
@@ -45,7 +51,9 @@ export default async function Index() {
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <CreateResourceForm />
+      <AddNewResourceButton />
+      {/* TODO: Should be in a modal */}
+      {showModal && <CreateResourceForm />}
       <div className="flex flex-col gap-y-8 justify-start">
         {data?.map((resource) => (
           <React.Fragment key={resource.id}>

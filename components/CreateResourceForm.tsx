@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ErrorMessage } from "@hookform/error-message";
 import clsx from "clsx";
+import { Dialog } from "@headlessui/react";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   link: z.string(),
@@ -27,6 +29,9 @@ export const CreateResourceForm = () => {
   } = useForm({
     resolver: zodResolver(schema),
   });
+
+  const router = useRouter();
+  const [shouldRender, setShouldRender] = useState(true);
 
   const watchLink = watch("link");
   const [titleLoading, setTitleLoading] = useState(false);
@@ -56,7 +61,12 @@ export const CreateResourceForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      await createResource(data);
+      const bookmark = await createResource(data);
+      if (bookmark) {
+        // TODO: Need to update search params here and refresh instead to render new item
+        // Or is there a better solution?
+        router.replace("/");
+      }
     } catch (error) {
       // TODO: Better error handling
       console.log(error);
@@ -67,40 +77,63 @@ export const CreateResourceForm = () => {
     console.log(Object.values(errors));
   }
 
+  if (!shouldRender) {
+    return null;
+  }
+
+  const handleCloseClick = () => {
+    setShouldRender(false);
+    router.replace("/");
+  };
+
   return (
-    <>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 w-96"
-      >
-        <BaseInput
-          placeholder="link"
-          {...register("link")}
-          onBlur={handleLinkBlur}
-        />
-        <CustomErrorMessage errors={errors} name="link" />
-        <BaseInput
-          placeholder="title"
-          {...register("title")}
-          onBlur={handleLinkBlur}
-          isLoading={titleLoading}
-        />
-        <CustomErrorMessage errors={errors} name="title" />
-        <BaseInput
-          placeholder="consume time"
-          {...register("consumeTime", { valueAsNumber: true })}
-        />
-        <CustomErrorMessage errors={errors} name="consumeTime" />
-        <BaseInput placeholder="type" {...register("type")} />
-        <CustomErrorMessage errors={errors} name="type" />
-        <BaseInput placeholder="notes" {...register("notes")} />
-        <CustomErrorMessage errors={errors} name="notes" />
-        <input
-          type="submit"
-          className="py-4 px-6 rounded-lg bg-purple-500 cursor-pointer"
-        />
-      </form>
-    </>
+    <Dialog open={true} onClose={handleCloseClick}>
+      {/* The backdrop, rendered as a fixed sibling to the panel container */}
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur"
+        aria-hidden="true"
+      />
+
+      {/* Full-screen container to center the panel */}
+      <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+        <Dialog.Panel className="bg-slate-800 p-12 rounded-lg">
+          <h2 className="font-bold text-xl mb-10 text-center">
+            Add new bookmark
+          </h2>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 w-96"
+          >
+            <BaseInput
+              placeholder="link"
+              {...register("link")}
+              onBlur={handleLinkBlur}
+            />
+            <CustomErrorMessage errors={errors} name="link" />
+            <BaseInput
+              placeholder="title"
+              {...register("title")}
+              onBlur={handleLinkBlur}
+              isLoading={titleLoading}
+            />
+            <CustomErrorMessage errors={errors} name="title" />
+            <BaseInput
+              placeholder="consume time"
+              {...register("consumeTime", { valueAsNumber: true })}
+            />
+            <CustomErrorMessage errors={errors} name="consumeTime" />
+            <BaseInput placeholder="type" {...register("type")} />
+            <CustomErrorMessage errors={errors} name="type" />
+            <BaseInput placeholder="notes" {...register("notes")} />
+            <CustomErrorMessage errors={errors} name="notes" />
+            <input
+              type="submit"
+              className="py-4 px-6 rounded-lg bg-purple-500 cursor-pointer"
+            />
+          </form>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
   );
 };
 
