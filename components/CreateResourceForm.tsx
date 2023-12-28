@@ -26,17 +26,23 @@ export const CreateResourceForm = () => {
     formState: { errors },
     watch,
     setValue,
+    getValues,
   } = useForm({
     resolver: zodResolver(schema),
   });
 
-  const router = useRouter();
   const [shouldRender, setShouldRender] = useState(true);
-
-  const watchLink = watch("link");
   const [titleLoading, setTitleLoading] = useState(false);
+  const [renderFullForm, setRenderFullForm] = useState(false);
+
+  const router = useRouter();
+  const watchLink = watch("link");
 
   const handleLinkBlur = async () => {
+    if (!watchLink) {
+      return;
+    }
+
     try {
       setTitleLoading(true);
       const res = await fetch("/metadata", {
@@ -47,11 +53,10 @@ export const CreateResourceForm = () => {
       if (res.ok) {
         const resBody = await res.json();
         setValue("title", resBody.title);
-        setTitleLoading(false);
-        return;
       }
 
       setTitleLoading(false);
+      setRenderFullForm(true);
     } catch (e) {
       console.error(e);
       setTitleLoading(false);
@@ -109,27 +114,31 @@ export const CreateResourceForm = () => {
               {...register("link")}
               onBlur={handleLinkBlur}
             />
-            <CustomErrorMessage errors={errors} name="link" />
-            <BaseInput
-              placeholder="title"
-              {...register("title")}
-              onBlur={handleLinkBlur}
-              isLoading={titleLoading}
-            />
-            <CustomErrorMessage errors={errors} name="title" />
-            <BaseInput
-              placeholder="consume time"
-              {...register("consumeTime", { valueAsNumber: true })}
-            />
-            <CustomErrorMessage errors={errors} name="consumeTime" />
-            <BaseInput placeholder="type" {...register("type")} />
-            <CustomErrorMessage errors={errors} name="type" />
-            <BaseInput placeholder="notes" {...register("notes")} />
-            <CustomErrorMessage errors={errors} name="notes" />
-            <input
-              type="submit"
-              className="py-4 px-6 rounded-lg bg-purple-500 cursor-pointer"
-            />
+            {titleLoading && <div>...loading data</div>}
+            {renderFullForm && (
+              <>
+                <CustomErrorMessage errors={errors} name="link" />
+                <BaseInput
+                  placeholder="title"
+                  {...register("title")}
+                  isLoading={titleLoading}
+                />
+                <CustomErrorMessage errors={errors} name="title" />
+                <BaseInput
+                  placeholder="consume time"
+                  {...register("consumeTime", { valueAsNumber: true })}
+                />
+                <CustomErrorMessage errors={errors} name="consumeTime" />
+                <BaseInput placeholder="type" {...register("type")} />
+                <CustomErrorMessage errors={errors} name="type" />
+                <BaseInput placeholder="notes" {...register("notes")} />
+                <CustomErrorMessage errors={errors} name="notes" />
+                <input
+                  type="submit"
+                  className="py-4 px-6 rounded-lg bg-purple-500 cursor-pointer"
+                />
+              </>
+            )}
           </form>
         </Dialog.Panel>
       </div>

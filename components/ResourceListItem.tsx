@@ -16,7 +16,7 @@ type Props = {
 
 export const ResourceListItem = ({ resource }: Props) => {
   return (
-    <div className="p-4">
+    <div className="py-4">
       <div>
         <p className="text-slate-500">
           {format(resource.created_at, "do MMM, yyyy")} -{" "}
@@ -36,12 +36,14 @@ export const ResourceListItem = ({ resource }: Props) => {
           </div>
         </div>
       </div>
-      <div className="mt-2">
-        <span className="uppercase font-bold text-sm text-neutral-400">
-          Notes
-        </span>
-        <p>{resource.notes}</p>
-      </div>
+      {resource.notes && (
+        <div className="mt-2">
+          <span className="uppercase font-bold text-sm text-neutral-400">
+            Notes
+          </span>
+          <p>{resource.notes}</p>
+        </div>
+      )}
       <div className="flex gap-3 mt-4">
         <ResourceConsumedButton resourceId={resource.id} />{" "}
         <span className="text-neutral-700">/</span>

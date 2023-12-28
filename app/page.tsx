@@ -45,16 +45,18 @@ export default async function Index({
   const data = await getData();
 
   return (
-    <div className="flex-1 w-full flex flex-col gap-20 items-center">
+    <div className="flex-1 w-[800px] flex flex-col items-center">
       <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
         <div className="w-full max-w-4xl flex justify-end items-center p-3 text-sm">
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <AddNewResourceButton />
+      <div className="mt-6 mb-12 flex flex-row w-full justify-end">
+        <AddNewResourceButton />
+      </div>
       {/* TODO: Should be in a modal */}
       {showModal && <CreateResourceForm />}
-      <div className="flex flex-col gap-y-8 justify-start">
+      <div className="flex flex-col gap-y-8 justify-start w-full">
         {data?.map((resource) => (
           <React.Fragment key={resource.id}>
             <ResourceListItem resource={resource} />

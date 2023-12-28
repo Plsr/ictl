@@ -9,5 +9,12 @@ export const AddNewResourceButton = () => {
     router.replace("?showAddModal");
   };
 
-  return <button onClick={handleAddNewClick}>Add new</button>;
+  return (
+    <button
+      className="bg-blue-600 py-2 text-sm px-4 rounded-lg"
+      onClick={handleAddNewClick}
+    >
+      Add new
+    </button>
+  );
 };
