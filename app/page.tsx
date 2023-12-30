@@ -7,17 +7,23 @@ import { Database } from "@/types/supabase";
 import { ResourceListItem } from "@/components/ResourceListItem";
 import React from "react";
 import { AddNewResourceButton } from "@/components/AddNewResourceButton";
+import Link from "next/link";
 
-const getData = async () => {
+type TypeFilterParams = "article" | "video" | "all";
+
+const getData = async (filterByType: TypeFilterParams) => {
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({
     cookies: () => cookieStore,
   });
 
-  const { data } = await supabase
-    .from("resource")
-    .select("*")
-    .eq("consumed", false);
+  let query = supabase.from("resource").select("*").eq("consumed", false);
+
+  if (filterByType !== "all") {
+    query = query.eq("type", filterByType);
+  }
+
+  const { data } = await query;
 
   return data;
 };
@@ -28,6 +34,8 @@ export default async function Index({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const showModal = Object.hasOwn(searchParams, "showAddModal");
+  const resourceTypeFilter = (searchParams["filterType"] ||
+    "all") as TypeFilterParams;
   const cookieStore = cookies();
 
   const canInitSupabaseClient = () => {
@@ -42,7 +50,8 @@ export default async function Index({
   };
 
   const isSupabaseConnected = canInitSupabaseClient();
-  const data = await getData();
+
+  const data = await getData(resourceTypeFilter);
 
   return (
     <div className="flex-1 w-[800px] flex flex-col items-center">
@@ -51,10 +60,20 @@ export default async function Index({
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <div className="mt-6 mb-12 flex flex-row w-full justify-end">
+      <div className="mt-6 mb-12 flex flex-row w-full justify-between">
+        <div className="flex gap-4">
+          <Link href={{ pathname: "/", query: { filterType: "all" } }}>
+            all
+          </Link>
+          <Link href={{ pathname: "/", query: { filterType: "article" } }}>
+            articles
+          </Link>
+          <Link href={{ pathname: "/", query: { filterType: "video" } }}>
+            videos
+          </Link>
+        </div>
         <AddNewResourceButton />
       </div>
-      {/* TODO: Should be in a modal */}
       {showModal && <CreateResourceForm />}
       <div className="flex flex-col gap-y-8 justify-start w-full">
         {data?.map((resource) => (
