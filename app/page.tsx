@@ -8,11 +8,14 @@ import { ResourceListItem } from "@/components/ResourceListItem";
 import React from "react";
 import { AddNewResourceButton } from "@/components/AddNewResourceButton";
 import Link from "next/link";
-import { getFilterFromSearchParams } from "@/utils/getFilterFromSearchParams";
+import {
+  BookmarksFilter,
+  getFilterFromSearchParams,
+} from "@/utils/getFilterFromSearchParams";
 
 type TypeFilterParams = "article" | "video" | "all";
 
-const getData = async (filterByType: TypeFilterParams) => {
+const getData = async (filter: BookmarksFilter) => {
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({
     cookies: () => cookieStore,
@@ -20,8 +23,32 @@ const getData = async (filterByType: TypeFilterParams) => {
 
   let query = supabase.from("resource").select("*").eq("consumed", false);
 
-  if (filterByType !== "all") {
-    query = query.eq("type", filterByType);
+  if (filter?.type) {
+    query = query.eq("type", filter.type);
+  }
+
+  if (filter?.title) {
+    query = query.textSearch("title", `${filter.title}`);
+  }
+
+  if (filter?.duration) {
+    switch (filter.duration.mode) {
+      case "eq":
+        query = query.eq("consume_time_seconds", filter.duration.time);
+        break;
+      case "lt":
+        query = query.lt("consume_time_seconds", filter.duration.time);
+        break;
+      case "gt":
+        query = query.gt("consume_time_seconds", filter.duration.time);
+        break;
+      case "lte":
+        query = query.lte("consume_time_seconds", filter.duration.time);
+        break;
+      case "gte":
+        query = query.gte("consume_time_seconds", filter.duration.time);
+        break;
+    }
   }
 
   const { data } = await query;
@@ -39,7 +66,7 @@ export default async function Index({
     "all") as TypeFilterParams;
   const cookieStore = cookies();
 
-  console.log(getFilterFromSearchParams(searchParams));
+  const filter = getFilterFromSearchParams(searchParams);
 
   const canInitSupabaseClient = () => {
     // This function is just for the interactive tutorial.
@@ -54,7 +81,7 @@ export default async function Index({
 
   const isSupabaseConnected = canInitSupabaseClient();
 
-  const data = await getData(resourceTypeFilter);
+  const data = await getData(filter);
 
   return (
     <div className="flex-1 w-[800px] flex flex-col items-center">

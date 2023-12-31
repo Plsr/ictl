@@ -4,14 +4,7 @@ const allowedTypeFilters = ["article", "video"] as const;
 type TypeFilterParams = (typeof allowedTypeFilters)[number];
 type DurationFilterMode = (typeof allowedDurationFilterModes)[number];
 
-export type BookmarksFilter = {
-  type: TypeFilterParams;
-  name: string;
-  duration: {
-    time: number;
-    mode: DurationFilterMode;
-  };
-};
+export type BookmarksFilter = ReturnType<typeof getFilterFromSearchParams>;
 
 export const getFilterFromSearchParams = (searchParams: {
   [key: string]: string | string[] | undefined;
@@ -26,7 +19,7 @@ export const getFilterFromSearchParams = (searchParams: {
     ? allowedTypeFilters.find((typeFilter) => typeFilter === typeFilterParam)
     : undefined;
 
-  const nameFilter = searchParams["filter.name"] as string;
+  const titleFilter = searchParams["filter.title"] as string;
 
   const durationFilterTime = searchParams["filter.duration"] as string;
   const durationFilterMode = searchParams["filter.durationMode"]
@@ -37,7 +30,7 @@ export const getFilterFromSearchParams = (searchParams: {
 
   return {
     type: typeFilter,
-    name: nameFilter,
+    title: titleFilter,
     duration: durationFilterTime
       ? {
           time: durationFilterTime,
