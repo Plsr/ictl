@@ -8,6 +8,7 @@ import { ResourceListItem } from "@/components/ResourceListItem";
 import React from "react";
 import { AddNewResourceButton } from "@/components/AddNewResourceButton";
 import Link from "next/link";
+import { getFilterFromSearchParams } from "@/utils/getFilterFromSearchParams";
 
 type TypeFilterParams = "article" | "video" | "all";
 
@@ -37,6 +38,8 @@ export default async function Index({
   const resourceTypeFilter = (searchParams["filterType"] ||
     "all") as TypeFilterParams;
   const cookieStore = cookies();
+
+  console.log(getFilterFromSearchParams(searchParams));
 
   const canInitSupabaseClient = () => {
     // This function is just for the interactive tutorial.
