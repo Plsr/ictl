@@ -12,6 +12,7 @@ import {
   BookmarksFilter,
   getFilterFromSearchParams,
 } from "@/utils/getFilterFromSearchParams";
+import { ResourceFilters } from "@/components/ResourceFilters";
 
 type TypeFilterParams = "article" | "video" | "all";
 
@@ -91,17 +92,7 @@ export default async function Index({
         </div>
       </nav>
       <div className="mt-6 mb-12 flex flex-row w-full justify-between">
-        <div className="flex gap-4">
-          <Link href={{ pathname: "/", query: { filterType: "all" } }}>
-            all
-          </Link>
-          <Link href={{ pathname: "/", query: { filterType: "article" } }}>
-            articles
-          </Link>
-          <Link href={{ pathname: "/", query: { filterType: "video" } }}>
-            videos
-          </Link>
-        </div>
+        <ResourceFilters />
         <AddNewResourceButton />
       </div>
       {showModal && <CreateResourceForm />}
