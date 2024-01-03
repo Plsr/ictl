@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { ResrouceTypeFilter } from "./ResourceTypeFilter";
 import { useRouter, useSearchParams } from "next/navigation";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type TypeFilter = "all" | "article" | "video";
 
@@ -17,26 +19,38 @@ const typeFilterOptions: TypeFilterOption[] = [
   { name: "Videos", value: "video" },
 ];
 
-// TODO: Should be a react-hook-form
+const schema = z.object({
+  type: z.enum(["all", "article", "video"]),
+});
+
 export const ResourceFilters = () => {
-  const [selectedType, setSelectedType] = useState(typeFilterOptions[0]);
+  const { handleSubmit, control } = useForm({
+    resolver: zodResolver(schema),
+  });
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleTypeFilterChange = (type: TypeFilterOption) => {
-    // TODO: Should be unnecessary when filter is inferred from searchParams
-    setSelectedType(type);
+  const selectedTypeFilter = searchParams.get("filter.type");
+  const defautlTypeFilter = typeFilterOptions.find(
+    (option) => option.value === selectedTypeFilter
+  );
+
+  const onSubmit = (data: any) => {
     const params = new URLSearchParams(searchParams);
-    params.set("filter.type", type.value);
+    params.set("filter.type", data.type);
     router.replace("/" + "?" + params.toString());
   };
 
-  // TODO: Prefill based on existing params
   return (
-    <ResrouceTypeFilter
-      onChange={handleTypeFilterChange}
-      value={selectedType}
-      values={typeFilterOptions}
-    />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <ResrouceTypeFilter
+        control={control}
+        defaultValue={defautlTypeFilter || typeFilterOptions[0]}
+        name="type"
+        values={typeFilterOptions}
+      />
+      <input type="submit" />
+    </form>
   );
 };
