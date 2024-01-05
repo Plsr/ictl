@@ -13,13 +13,18 @@ export type TypeFilterOption = {
   value: TypeFilter;
 };
 
+type DurationComparisonOperatorOption = {
+  name: string;
+  value: z.infer<typeof schema>["durationComparisonOperator"];
+};
+
 const typeFilterOptions: TypeFilterOption[] = [
   { name: "All", value: "all" },
   { name: "Articles", value: "article" },
   { name: "Videos", value: "video" },
 ];
 
-const durationComparisonOperatorOptions = [
+const durationComparisonOperatorOptions: DurationComparisonOperatorOption[] = [
   { name: "=", value: "eq" },
   { name: "<", value: "lt" },
   { name: "<=", value: "lte" },
@@ -30,11 +35,13 @@ const durationComparisonOperatorOptions = [
 const schema = z.object({
   type: z.enum(["all", "article", "video"]),
   durationComparisonOperator: z.enum(["eq", "gt", "gte", "lt", "lte"]),
-  duration: z.string().optional(),
+  duration: z.number().optional(),
 });
 
+type FormData = z.infer<typeof schema>;
+
 export const ResourceFilters = () => {
-  const { handleSubmit, control, register } = useForm({
+  const { handleSubmit, control, register } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       type: typeFilterOptions[0].value,
@@ -51,15 +58,18 @@ export const ResourceFilters = () => {
     (option) => option.value === selectedTypeFilter
   );
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: FormData) => {
     const params = new URLSearchParams(searchParams);
     params.set("filter.type", data.type);
-    router.replace("/" + "?" + params.toString());
 
     if (data.duration) {
-      console.log("have duration");
-      // TODO: Handle duration filtering
+      const durationComparisonOperator = data.durationComparisonOperator;
+      const duration = data.duration;
+      params.set("filter.duration", (duration * 60).toString());
+      params.set("filter.durationMode", durationComparisonOperator);
     }
+
+    router.replace("/" + "?" + params.toString());
   };
 
   return (
@@ -76,7 +86,12 @@ export const ResourceFilters = () => {
         name="durationComparisonOperator"
         values={durationComparisonOperatorOptions}
       />
-      <input {...register("duration")} />
+      <input
+        className="text-black"
+        {...register("duration", {
+          valueAsNumber: true,
+        })}
+      />
       <input type="submit" />
     </form>
   );

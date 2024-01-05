@@ -22,7 +22,7 @@ export const getFilterFromSearchParams = (searchParams: {
   const titleFilter = searchParams["filter.title"] as string;
 
   const durationFilterTime = searchParams["filter.duration"] as string;
-  const durationFilterMode = searchParams["filter.durationMode"]
+  const durationFilterMode = searchParams["filter.durationMode"] // TODO: rename to durationComparisonOperator
     ? allowedDurationFilterModes.find((el) => {
         return el == (searchParams["filter.durationMode"] as string);
       })
