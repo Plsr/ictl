@@ -4,19 +4,16 @@ import { Listbox } from "@headlessui/react";
 import { TypeFilterOption } from "./ResourceFilters";
 import { Control, Controller } from "react-hook-form";
 
+type SelectOption = { name: string; value: string | number };
+
 type Props = {
-  values: TypeFilterOption[];
-  defaultValue: TypeFilterOption;
+  values: SelectOption[];
+  defaultValue: SelectOption;
   control: Control<any, any>;
   name: string;
 };
 
-export const ResrouceTypeFilter = ({
-  values,
-  control,
-  name,
-  defaultValue,
-}: Props) => {
+export const Select = ({ values, control, name, defaultValue }: Props) => {
   return (
     <Controller
       control={control}
