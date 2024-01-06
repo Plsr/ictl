@@ -36,6 +36,7 @@ const schema = z.object({
   type: z.enum(["all", "article", "video"]),
   durationComparisonOperator: z.enum(["eq", "gt", "gte", "lt", "lte"]),
   duration: z.number().optional(),
+  title: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -47,6 +48,7 @@ export const ResourceFilters = () => {
       type: typeFilterOptions[0].value,
       durationComparisonOperator: durationComparisonOperatorOptions[0].value,
       duration: undefined,
+      title: undefined,
     },
   });
 
@@ -69,6 +71,10 @@ export const ResourceFilters = () => {
       params.set("filter.durationMode", durationComparisonOperator);
     }
 
+    if (data.title) {
+      params.set("filter.title", data.title);
+    }
+
     router.replace("/" + "?" + params.toString());
   };
 
@@ -89,9 +95,10 @@ export const ResourceFilters = () => {
       <input
         className="text-black"
         {...register("duration", {
-          valueAsNumber: true,
+          setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
         })}
       />
+      <input className="text-black" {...register("title")} />
       <input type="submit" />
     </form>
   );
