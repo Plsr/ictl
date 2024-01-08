@@ -91,10 +91,10 @@ export default async function Index({
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <div className="mt-6 mb-12 flex flex-row w-full justify-between">
-        <ResourceFilters />
+      <div className="mt-6 mb-12 flex flex-col items-end w-full justify-end">
         <AddNewResourceButton />
       </div>
+      <ResourceFilters />
       {showModal && <CreateResourceForm />}
       <div className="flex flex-col gap-y-8 justify-start w-full">
         {data?.map((resource) => (

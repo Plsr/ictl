@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "./Input";
+import { InputLabel } from "./InputLabel";
 
 type TypeFilter = "all" | "article" | "video";
 
@@ -42,7 +44,12 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export const ResourceFilters = () => {
-  const { handleSubmit, control, register } = useForm<FormData>({
+  const {
+    handleSubmit,
+    control,
+    register,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       type: typeFilterOptions[0].value,
@@ -52,6 +59,7 @@ export const ResourceFilters = () => {
     },
   });
 
+  console.log(errors.duration);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -61,6 +69,7 @@ export const ResourceFilters = () => {
   );
 
   const onSubmit = (data: FormData) => {
+    console.log(data);
     const params = new URLSearchParams(searchParams);
     params.set("filter.type", data.type);
 
@@ -79,27 +88,38 @@ export const ResourceFilters = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-row gap-6 w-full "
+    >
       <Select
         control={control}
         defaultValue={defautlTypeFilter || typeFilterOptions[0]}
         name="type"
         values={typeFilterOptions}
+        label={<InputLabel>Type</InputLabel>}
       />
-      <Select
-        control={control}
-        defaultValue={durationComparisonOperatorOptions[0]}
-        name="durationComparisonOperator"
-        values={durationComparisonOperatorOptions}
-      />
+      <div className="gap-2 flex flex-row">
+        <Select
+          control={control}
+          defaultValue={durationComparisonOperatorOptions[0]}
+          name="durationComparisonOperator"
+          values={durationComparisonOperatorOptions}
+          label={<InputLabel>Duration</InputLabel>}
+        />
+        <Input
+          {...register("duration", {
+            setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
+          })}
+        />
+      </div>
+
+      <Input {...register("title")} label={<InputLabel>Title</InputLabel>} />
       <input
-        className="text-black"
-        {...register("duration", {
-          setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
-        })}
+        type="submit"
+        value="Apply Filters"
+        className="flex-grow-0 self-end py-2 px-4 bg-transparent border border-slate-500 text-slate-300 rounded-lg"
       />
-      <input className="text-black" {...register("title")} />
-      <input type="submit" />
     </form>
   );
 };
