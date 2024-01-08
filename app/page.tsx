@@ -13,6 +13,7 @@ import {
   getFilterFromSearchParams,
 } from "@/utils/getFilterFromSearchParams";
 import { ResourceFilters } from "@/components/ResourceFilters";
+import { ActiveFiltersList } from "@/components/ActiveFiltersList";
 
 type TypeFilterParams = "article" | "video" | "all";
 
@@ -94,7 +95,10 @@ export default async function Index({
       <div className="mt-6 mb-12 flex flex-col items-end w-full justify-end">
         <AddNewResourceButton />
       </div>
-      <ResourceFilters />
+      <div className="mb-4 w-full">
+        <ResourceFilters />
+        <ActiveFiltersList filters={filter} />
+      </div>
       {showModal && <CreateResourceForm />}
       <div className="flex flex-col gap-y-8 justify-start w-full">
         {data?.map((resource) => (
