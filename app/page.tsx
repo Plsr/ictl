@@ -8,10 +8,16 @@ import { ResourceListItem } from "@/components/ResourceListItem";
 import React from "react";
 import { AddNewResourceButton } from "@/components/AddNewResourceButton";
 import Link from "next/link";
+import {
+  BookmarksFilter,
+  getFilterFromSearchParams,
+} from "@/utils/getFilterFromSearchParams";
+import { ResourceFilters } from "@/components/ResourceFilters";
+import { ActiveFiltersList } from "@/components/ActiveFiltersList";
 
 type TypeFilterParams = "article" | "video" | "all";
 
-const getData = async (filterByType: TypeFilterParams) => {
+const getData = async (filter: BookmarksFilter) => {
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({
     cookies: () => cookieStore,
@@ -19,8 +25,32 @@ const getData = async (filterByType: TypeFilterParams) => {
 
   let query = supabase.from("resource").select("*").eq("consumed", false);
 
-  if (filterByType !== "all") {
-    query = query.eq("type", filterByType);
+  if (filter?.type) {
+    query = query.eq("type", filter.type);
+  }
+
+  if (filter?.title) {
+    query = query.textSearch("title", `${filter.title}`);
+  }
+
+  if (filter?.duration) {
+    switch (filter.duration.mode) {
+      case "eq":
+        query = query.eq("consume_time_seconds", filter.duration.time);
+        break;
+      case "lt":
+        query = query.lt("consume_time_seconds", filter.duration.time);
+        break;
+      case "gt":
+        query = query.gt("consume_time_seconds", filter.duration.time);
+        break;
+      case "lte":
+        query = query.lte("consume_time_seconds", filter.duration.time);
+        break;
+      case "gte":
+        query = query.gte("consume_time_seconds", filter.duration.time);
+        break;
+    }
   }
 
   const { data } = await query;
@@ -38,6 +68,8 @@ export default async function Index({
     "all") as TypeFilterParams;
   const cookieStore = cookies();
 
+  const filter = getFilterFromSearchParams(searchParams);
+
   const canInitSupabaseClient = () => {
     // This function is just for the interactive tutorial.
     // Feel free to remove it once you have Supabase connected.
@@ -51,7 +83,7 @@ export default async function Index({
 
   const isSupabaseConnected = canInitSupabaseClient();
 
-  const data = await getData(resourceTypeFilter);
+  const data = await getData(filter);
 
   return (
     <div className="flex-1 w-[800px] flex flex-col items-center">
@@ -60,19 +92,12 @@ export default async function Index({
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <div className="mt-6 mb-12 flex flex-row w-full justify-between">
-        <div className="flex gap-4">
-          <Link href={{ pathname: "/", query: { filterType: "all" } }}>
-            all
-          </Link>
-          <Link href={{ pathname: "/", query: { filterType: "article" } }}>
-            articles
-          </Link>
-          <Link href={{ pathname: "/", query: { filterType: "video" } }}>
-            videos
-          </Link>
-        </div>
+      <div className="mt-6 mb-12 flex flex-col items-end w-full justify-end">
         <AddNewResourceButton />
+      </div>
+      <div className="mb-4 w-full gap-4 flex flex-col">
+        <ResourceFilters />
+        <ActiveFiltersList filters={filter} />
       </div>
       {showModal && <CreateResourceForm />}
       <div className="flex flex-col gap-y-8 justify-start w-full">
