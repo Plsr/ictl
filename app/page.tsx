@@ -95,7 +95,7 @@ export default async function Index({
       <div className="mt-6 mb-12 flex flex-col items-end w-full justify-end">
         <AddNewResourceButton />
       </div>
-      <div className="mb-4 w-full">
+      <div className="mb-4 w-full gap-4 flex flex-col">
         <ResourceFilters />
         <ActiveFiltersList filters={filter} />
       </div>

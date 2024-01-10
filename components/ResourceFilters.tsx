@@ -43,13 +43,9 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+// TODO: Prefill filters based on query params
 export const ResourceFilters = () => {
-  const {
-    handleSubmit,
-    control,
-    register,
-    formState: { errors },
-  } = useForm<FormData>({
+  const { handleSubmit, control, register } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       type: typeFilterOptions[0].value,
@@ -59,7 +55,6 @@ export const ResourceFilters = () => {
     },
   });
 
-  console.log(errors.duration);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -69,9 +64,10 @@ export const ResourceFilters = () => {
   );
 
   const onSubmit = (data: FormData) => {
-    console.log(data);
     const params = new URLSearchParams(searchParams);
-    params.set("filter.type", data.type);
+    if (data.type) {
+      params.set("filter.type", data.type);
+    }
 
     if (data.duration) {
       const durationComparisonOperator = data.durationComparisonOperator;
