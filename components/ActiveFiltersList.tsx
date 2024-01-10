@@ -1,5 +1,6 @@
 "use client";
 
+import { convertDurationComparisonOperatorToSymbol } from "@/utils/durationComparison";
 import { BookmarksFilter } from "@/utils/getFilterFromSearchParams";
 
 type Props = {
@@ -13,60 +14,33 @@ export const ActiveFiltersList = ({ filters }: Props) => {
     return null;
   }
 
-  // TODO: Refactor this ugly piece of trash, my god
   return (
     <>
       {Object.entries(filters).map((activeFilter) => {
-        if (activeFilter[0] === "duration" && activeFilter[1]) {
-          const durationTimeValue = Object.values(activeFilter[1])[0];
+        const filterName = activeFilter[0];
+        const filterValue = activeFilter[1];
 
-          if (!durationTimeValue) {
+        if (!filterValue) {
+          return null;
+        }
+
+        if (filterName === "duration" && filterValue) {
+          const durationTimeValue = Object.values(filterValue)[0];
+          const durationComparisonOperator = Object.values(filterValue)[1];
+
+          if (!durationTimeValue || !durationComparisonOperator) {
             return;
           }
 
-          const durationComparisonOperator = Object.values(activeFilter[1])[1];
-
-          let durationComparisonSymbol: string;
-          switch (durationComparisonOperator) {
-            case "gte":
-              durationComparisonSymbol = ">=";
-              break;
-            case "gt":
-              durationComparisonSymbol = ">";
-              break;
-            case "lte":
-              durationComparisonSymbol = "<=";
-              break;
-            case "lt":
-              durationComparisonSymbol = "<";
-              break;
-            default:
-              durationComparisonSymbol = "=";
-          }
-
           return (
-            <ActiveFilter
-              name={activeFilter[0]}
-              value={
-                durationComparisonSymbol +
-                " " +
-                parseInt(durationTimeValue) / 60 +
-                "min"
-              }
+            <DurationActiveFilter
+              durationTimeValue={parseInt(durationTimeValue)}
+              durationComparisonOperator={durationComparisonOperator}
             />
           );
         }
 
-        if (!activeFilter[1]) {
-          return null;
-        }
-
-        return (
-          <ActiveFilter
-            name={activeFilter[0]}
-            value={activeFilter[1] as string}
-          />
-        );
+        return <ActiveFilter name={filterName} value={filterValue as string} />;
       })}
     </>
   );
@@ -83,5 +57,26 @@ const ActiveFilter = ({ name, value }: ActiveFilterProps) => {
     <div>
       {name}: {value}
     </div>
+  );
+};
+
+type DurationActiveFilterProps = {
+  durationTimeValue: number;
+  durationComparisonOperator: string;
+};
+
+const DurationActiveFilter = ({
+  durationTimeValue,
+  durationComparisonOperator,
+}: DurationActiveFilterProps) => {
+  const durationComparisonSymbol = convertDurationComparisonOperatorToSymbol(
+    durationComparisonOperator
+  );
+
+  return (
+    <ActiveFilter
+      name="Duration"
+      value={durationComparisonSymbol + " " + durationTimeValue / 60 + "min"}
+    />
   );
 };
